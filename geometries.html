@@ -1,0 +1,240 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="../../favicon.ico">
+   
+    <title>VirtualStoryCraft</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+
+    <!-- Bootstrap theme -->
+   
+
+    <script src="js/jquery-2.1.3.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.css">
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.css">
+		 <link href="css/layout.css" rel="stylesheet">
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<script src="https://cdn.firebase.com/js/client/2.2.1/firebase.js"></script>
+	
+ 
+  </head>
+  
+ <body>
+ 	<div class="container-fluid col-md-12">
+		<script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.min.js"></script>
+				<script src="js/controls/OrbitControls.js"></script>
+	</head>
+	<body>
+	<div id="box"></div>
+	<div id="sphere"></div>
+	<div id="pyramid"></div>
+	<div id="cylinder"></div>
+		<script>
+			
+			var manualControl = false;
+			var longitude = 0;
+			var latitude = 0;
+			var savedX;
+			var savedY;
+			var savedLongitude;
+			var savedLatitude;
+			
+			var position = {x:0, y:0, z:0};
+	
+			
+			
+			
+
+			//$("#box").append(createBox(scene, position));
+			
+			
+			position.y = 100;
+			var scene2 = new THREE.Scene();
+			$("#pyramid").append(createPyramid(scene2, position));
+			// listeners
+			document.addEventListener("mousedown", onDocumentMouseDown, false);
+			document.addEventListener("mousemove", onDocumentMouseMove, false);
+			document.addEventListener("mouseup", onDocumentMouseUp, false);
+				
+            render();
+        
+        function init(){
+        // creating a new scene, renderer, camera
+        // setting up the renderer
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+			var scene = new THREE.Scene();
+			
+			
+			renderer = new THREE.WebGLRenderer( { antialias: true } );
+			renderer.setClearColor( 0xffffff );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( container.clientWidth, container.clientHeight );
+			container.appendChild( renderer.domElement );
+			
+			// CAMERA
+			var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+			var VIEW_ANGLE = 100, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+			var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+			camera.target = new THREE.Vector3(0, 0, 0);
+			camera.position.set(0,50,300);
+			camera.lookAt(scene.position);	
+			
+			scene.add(camera);
+			var controls = new THREE.OrbitControls( camera, renderer.domElement );
+        
+        }
+        
+        function createSphere(scene, pos, texture){
+				// creation of a big sphere geometry
+				var sphere = new THREE.SphereGeometry(50,50,50);
+				sphere.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
+				// creation of the sphere material
+				if(texture!= undefined){}
+				var sphereMaterial = new THREE.MeshBasicMaterial({color:"blue"});			
+				sphereMaterial.side =THREE.DoubleSide;
+				var sphereMesh = new THREE.Mesh(sphere, sphereMaterial);
+				sphereMesh.position.y = pos.y;
+				scene.add(sphereMesh);
+			
+				return sphere;
+			}
+       
+		function createBox(scene, pos, texture){
+
+			var box = new THREE.BoxGeometry(50,50,50);		
+			var meshFaceMaterial1 = new THREE.MeshBasicMaterial({color:"red"} );//new THREE.MeshFaceMaterial( materialArray );
+			meshFaceMaterial1.side = THREE.DoubleSide;
+			var dh_mesh_inside = new THREE.Mesh(box, meshFaceMaterial1);
+			dh_mesh_inside.position.y = pos.y;
+			scene.add(dh_mesh_inside);
+		return box;
+		}
+		        
+       	function createCylinder(scene, position, texture){	
+			var cylinder = new THREE.CylinderGeometry(50, 50, 100, 100, false); 		
+			var cylinderMesh = new THREE.Mesh( cylinder, new THREE.MeshBasicMaterial( {	color:"yellow",side:THREE.DoubleSide}))	;//,vertexColors: THREE.FaceColors}));	
+			cylinderMesh.rotation.y = 45 * Math.PI / 180;
+			cylinderMesh.position.y= pos.y;
+			scene.add(cylinderMesh);
+			return cylinder
+		}    
+		
+		function createPyramid(scene, pos, texture){
+			var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+			camera.target = new THREE.Vector3(0, 0, 0);
+			camera.position.set(0,50,300);
+			camera.lookAt(scene.position);	
+		scene.add(camera);
+			var pyramid = new THREE.CylinderGeometry(0, 50, 50, 4, false); 		
+			var faceColors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+			faceColors.forEach( function(color, idx) 
+				{ pyramid.faces[2 * idx + 1].color.setHex(color);});	
+			var pyramidMesh = new THREE.Mesh( pyramid, new THREE.MeshBasicMaterial( {	vertexColors: THREE.FaceColors,side:THREE.DoubleSide}))	;//,vertexColors: THREE.FaceColors}));		
+			//pyramidMesh.rotation.y = 45 * Math.PI / 180;
+			pyramidMesh.position.y = pos.y;
+			scene.add(pyramidMesh);
+			
+			return scene;
+		}
+               function loadTexture(geo){
+            
+				var front = [new THREE.Vector2(0, .666), new THREE.Vector2(.5, .666), new THREE.Vector2(.5, 1), new THREE.Vector2(0, 1)];
+				var back =  [new THREE.Vector2(.5, .666), new THREE.Vector2(1, .666), new THREE.Vector2(1, 1), new THREE.Vector2(.5, 1)];
+				var sideR = [new THREE.Vector2(0, .333), new THREE.Vector2(.5, .333), new THREE.Vector2(.5, .666), new THREE.Vector2(0, .666)];
+				var sideL = [new THREE.Vector2(.5, .333), new THREE.Vector2(1, .333), new THREE.Vector2(1, .666), new THREE.Vector2(.5, .666)];
+				var top	 =  [new THREE.Vector2(0, 0), new THREE.Vector2(.5, 0), new THREE.Vector2(.5, .333), new THREE.Vector2(0, .333)];
+				var bottom =[new THREE.Vector2(.5, 0), new THREE.Vector2(1, 0), new THREE.Vector2(1, .333), new THREE.Vector2(.5, .333)];
+				
+				geo.faceVertexUvs[0] = [];
+				
+				geo.faceVertexUvs[0][0] = [ front[0], front[1], front[3] ];
+				geo.faceVertexUvs[0][1] = [ front[1], front[2], front[3] ];
+				  
+				geo.faceVertexUvs[0][2] = [ back[0], back[1], back[3] ];
+				geo.faceVertexUvs[0][3] = [ back[1], back[2], back[3] ];
+				  
+				geo.faceVertexUvs[0][4] = [ sideR[0], sideR[1], sideR[3] ];
+				geo.faceVertexUvs[0][5] = [ sideR[1], sideR[2], sideR[3] ];
+				  
+				geo.faceVertexUvs[0][6] = [ sideL[0], sideL[1], sideL[3] ];
+				geo.faceVertexUvs[0][7] = [ sideL[1], sideL[2], sideL[3] ];
+				  
+				geo.faceVertexUvs[0][8] = [ new THREE.Vector2(0, 0), new THREE.Vector2(.5, 0), new THREE.Vector2(0,.333) ];
+				geo.faceVertexUvs[0][9] = [ new THREE.Vector2(.5, 0), new THREE.Vector2(.5, .333), new THREE.Vector2(0,.333)];
+				  
+				geo.faceVertexUvs[0][10] = [ bottom[0], bottom[1], bottom[3] ];
+				geo.faceVertexUvs[0][11] = [ bottom[1], bottom[2], bottom[3] ];
+			
+			return geo;
+            
+            }
+               function render(){
+				
+				requestAnimationFrame(render);
+				
+				if(!manualControl){
+					longitude += 0.1;
+				}
+
+				// limiting latitude from -85 to 85 (cannot point to the sky or under your feet)
+                    latitude = Math.max(-85, Math.min(85, latitude));
+
+				// moving the camera according to current latitude (vertical movement) and longitude (horizontal movement)
+				
+
+				// calling again render function
+				renderer.render(scene, camera);
+					
+				controls.update();
+			}
+			
+			// when the mouse is pressed, we switch to manual control and save current coordinates
+			function onDocumentMouseDown(event){
+
+				event.preventDefault();
+
+				manualControl = true;
+
+				savedX = event.clientX;
+				savedY = event.clientY;
+
+				savedLongitude = longitude;
+				savedLatitude = latitude;
+
+			}
+
+			// when the mouse moves, if in manual contro we adjust coordinates
+			function onDocumentMouseMove(event){
+
+				if(manualControl){
+					longitude = (savedX - event.clientX) * 0.1 + savedLongitude;
+					latitude = (event.clientY - savedY) * 0.1 + savedLatitude;
+				}
+
+			}
+
+			// when the mouse is released, we turn manual control off
+			function onDocumentMouseUp(event){
+
+				manualControl = false;
+
+			}
+			
+			// pressing a key (actually releasing it) changes the texture map
+			document.onkeyup = function(event){
+						
+    			}
+			
+		</script>
+	</body>
+</html>
